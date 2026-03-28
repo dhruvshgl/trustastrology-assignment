@@ -150,9 +150,9 @@ export default function Sidebar() {
               setError(e?.message ?? "Could not create session");
             }
           }}
-          className="mb-4 bg-white text-black py-2 rounded w-full text-left"
+          className="mb-4 bg-white text-black py-2 rounded w-full "
         >
-          + New Chat
+        +   New Chat
         </button>
         {}
       </div>
