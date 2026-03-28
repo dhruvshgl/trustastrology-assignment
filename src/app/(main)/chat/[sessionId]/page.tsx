@@ -45,6 +45,13 @@ export default function ChatPage() {
     loadMessages();
   }, [routeSessionId]);
 
+  const deriveTitle = (text: string) => {
+    if (!text) return "New Chat";
+    const normalized = text.replace(/\s+/g, " ").trim();
+    const firstLine = normalized.split("\n")[0] || normalized;
+    return firstLine.length > 60 ? firstLine.slice(0, 57) + "..." : firstLine;
+  };
+
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -94,6 +101,16 @@ export default function ChatPage() {
       };
 
       setMessages((s) => [...s, aiMsg]);
+      try {
+        if (typeof window !== "undefined") {
+          const bc = new BroadcastChannel("chat-sessions");
+          const title = deriveTitle(trimmed);
+          bc.postMessage({ type: "session-updated", sessionId: routeSessionId, title });
+          bc.close();
+        }
+      } catch (e) {
+        // ignore broadcast errors
+      }
     } catch (err) {
       const errMsg: Message = {
         id: String(Date.now()) + "-a",

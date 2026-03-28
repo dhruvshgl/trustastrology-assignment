@@ -46,6 +46,39 @@ export default function Sidebar() {
     };
 
     fetchSessions();
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined") {
+        bc = new BroadcastChannel("chat-sessions");
+        bc.onmessage = (ev) => {
+          try {
+            const msg = ev.data;
+            if (msg?.type === "session-updated") {
+              const { sessionId, title } = msg as any;
+              setSessions((prev) => {
+                const idx = prev.findIndex((s) => s._id === sessionId);
+                if (idx >= 0) {
+                  const copy = [...prev];
+                  copy[idx] = { ...copy[idx], title };
+                  return copy;
+                }
+                return [{ _id: sessionId, title }, ...prev];
+              });
+            }
+          } catch (e) {
+            console.warn("Sidebar broadcast handler error", e);
+          }
+        };
+      }
+    } catch (e) {
+      console.warn("Could not initialize BroadcastChannel in Sidebar", e);
+    }
+
+    return () => {
+      try {
+        bc?.close();
+      } catch (e) {}
+    };
   }, []);
 
   return (
