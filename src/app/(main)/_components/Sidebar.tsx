@@ -9,6 +9,7 @@ type Session = {
 };
 
 export default function Sidebar() {
+  const [open, setOpen] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +47,71 @@ export default function Sidebar() {
     };
 
     fetchSessions();
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined") {
+        bc = new BroadcastChannel("chat-sessions");
+        bc.onmessage = (ev) => {
+          try {
+            const msg = ev.data;
+            if (msg?.type === "session-updated") {
+              const { sessionId, title } = msg as any;
+              setSessions((prev) => {
+                const idx = prev.findIndex((s) => s._id === sessionId);
+                if (idx >= 0) {
+                  const copy = [...prev];
+                  copy[idx] = { ...copy[idx], title };
+                  return copy;
+                }
+                return [{ _id: sessionId, title }, ...prev];
+              });
+            }
+          } catch (e) {
+            console.warn("Sidebar broadcast handler error", e);
+          }
+        };
+      }
+    } catch (e) {
+      console.warn("Could not initialize BroadcastChannel in Sidebar", e);
+    }
+
+    return () => {
+      try {
+        bc?.close();
+      } catch (e) {}
+    };
   }, []);
+
+  if (!open) {
+    return (
+      <div>
+        <button
+          aria-label="Open sidebar"
+          onClick={() => setOpen(true)}
+          className="fixed left-2 top-4 z-50 p-2 rounded-md bg-gray-800 text-white shadow"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-64 h-screen bg-gray-900 text-white flex flex-col p-4">
-      <h2 className="text-lg font-semibold mb-4">Chats</h2>
+      <div className="flex items-start justify-between">
+        <h2 className="text-lg font-semibold mb-4">Chats</h2>
+        <button
+          aria-label="Close sidebar"
+          onClick={() => setOpen(false)}
+          className="mb-4 p-1 rounded hover:bg-gray-800"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       <div className="mb-4">
         <button
@@ -89,9 +150,9 @@ export default function Sidebar() {
               setError(e?.message ?? "Could not create session");
             }
           }}
-          className="mb-4 bg-white text-black py-2 rounded w-full text-left"
+          className="mb-4 bg-white text-black py-2 rounded w-full "
         >
-          + New Chat
+        +   New Chat
         </button>
         {}
       </div>
