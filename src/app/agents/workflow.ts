@@ -22,10 +22,8 @@ const sectionsSchema = z.object({
   sections: z.array(sectionSchema).describe("A list of specialist tasks to run"),
 });
 
-// Orchestrator planner with structured output
 const planner = llm.withStructuredOutput(sectionsSchema);
 
-// Graph state
 const State = new StateSchema({
   input: z.string(),
   sections: z.array(sectionSchema).optional(),
