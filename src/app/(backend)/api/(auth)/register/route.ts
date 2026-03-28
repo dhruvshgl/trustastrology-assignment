@@ -5,8 +5,8 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 const RegisterSchema = z.object({
-  username: z.string().min(3),
-  password: z.string().min(6),
+  username: z.string(),
+  password: z.string(),
 });
 
 export async function POST(req: Request) {

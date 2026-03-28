@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 
 export const UserSchema = z.object({
   _id: z.string(), // Mongo ObjectId (string form)
-  username: z.string().min(3),
-  password: z.string().min(6),
+  username: z.string(),
+  password: z.string(),
   createdAt: z.date(),
 });
 
