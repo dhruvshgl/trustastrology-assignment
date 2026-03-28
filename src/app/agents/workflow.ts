@@ -60,6 +60,7 @@ const orchestrator: GraphNode<typeof State> = async (state, _config) => {
 };
 
 const llmCall1: GraphNode<typeof State> = async (state, _config) => {
+  console.log("LLM Call 1 - Math Specialist. Task:", state.mathTask);
   if (!state.mathTask) {
     return { mathOutput: "" };
   }
@@ -75,6 +76,7 @@ const llmCall1: GraphNode<typeof State> = async (state, _config) => {
 };
 
 const llmCall2: GraphNode<typeof State> = async (state, _config) => {
+  console.log("LLM Call 2 - Tech Specialist. Task:", state.techTask);
   if (!state.techTask) {
     return { techOutput: "" };
   }
@@ -90,6 +92,7 @@ const llmCall2: GraphNode<typeof State> = async (state, _config) => {
 };
 
 const llmCall3: GraphNode<typeof State> = async (state, _config) => {
+  console.log("LLM Call 3 - General Specialist. Task:", state.generalTask);
   if (!state.generalTask) {
     return { generalOutput: "" };
   }

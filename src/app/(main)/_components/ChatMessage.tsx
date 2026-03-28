@@ -25,18 +25,31 @@ export default function ChatMessage({ role, text }: Props) {
         {(() => {
 
           const mdComponents: any = {
+            pre: (props: any) => {
+              const { children } = props;
+              return (
+                <pre className="overflow-x-auto rounded bg-gray-900 text-white p-3 my-2">
+                  {children}
+                </pre>
+              );
+            },
             code: (props: any) => {
-              const { inline, className, children, ...rest } = props;
-              if (!inline) {
+              const { className, children, ...rest } = props;
+              const isBlockCode = typeof className === "string" && className.includes("language-");
+
+              if (isBlockCode) {
                 return (
-                  <pre className="overflow-x-auto rounded bg-gray-900 text-white p-3">
-                    <code className={className} {...rest}>
-                      {String(children).replace(/\n$/, "")}
-                    </code>
-                  </pre>
+                  <code className={className} {...rest}>
+                    {String(children).replace(/\n$/, "")}
+                  </code>
                 );
               }
-              return <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">{children}</code>;
+
+              return (
+                <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded" {...rest}>
+                  {children}
+                </code>
+              );
             },
             p: (props: any) => {
               return <p className="my-1">{props.children}</p>;
